@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .checkbox-container {
+    @apply group absolute flex items-center right-4 cursor-pointer;
+  }
+
+  .checkbox {
+    @apply opacity-0 h-0 w-0;
+  }
+
+  .checkmark {
+    @apply absolute right-0 flex h-6 w-6 bg-white rounded-sm group-hover:bg-gray-100;
+  }
+
+  .checkbox:checked ~ .checkmark {
+    @apply bg-white;
+  }
+
+  .checkmark::after {
+    @apply border border-blue-500;
+    content: "";
+    position: absolute;
+    display: none;
+    left: 10px;
+    top: 6px;
+    width: 6px;
+    height: 12px;
+    border-width: 0 3px 3px 0;
+    transform: rotate(45deg);
+  }
+
+  .checkbox:checked ~ .checkmark::after {
+    @apply block;
+  }
+}
