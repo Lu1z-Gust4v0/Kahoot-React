@@ -100,7 +100,7 @@ const QuestionEditor = ({
   };
 
   return (
-    <div className="flex flex-col col-span-8 py-8 px-8 gap-8">
+    <div className="flex flex-col col-span-7 py-8 px-8 gap-8">
       <input
         id="title"
         className="py-6 rounded-md px-4"
@@ -159,7 +159,7 @@ const QuestionEditor = ({
         />
       </div>
       <button
-        className="self-start py-4 px-16 rounded-md bg-purple-500 text-white text-2xl font-bold hover:bg-purple-700"
+        className="self-start py-4 px-16 rounded-md bg-blue-500 text-white text-2xl font-bold hover:bg-blue-700"
         onClick={() => editQuestion(selectedQuestion)}
       >
         Save Question
