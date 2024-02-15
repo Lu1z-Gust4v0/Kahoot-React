@@ -2,9 +2,11 @@ package configs
 
 import (
 	"fmt"
+	"kahoot-api/internal/models"
+	"os"
+
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"os"
 
 	"github.com/joho/godotenv"
 )
@@ -26,6 +28,19 @@ func buildConnectionString(data DatabaseConfig) string {
 	return fmt.Sprintf("host=%s user=%s port=%s password=%s dbname=%s sslmode=%s", data.Host, data.User, data.Port, data.Password, data.Name, data.SLLMode)
 }
 
+func migrateDatabase(database *gorm.DB) error {
+	// Skip migration
+	if os.Getenv("MIGRATE") == "false" {
+		return nil
+	}
+
+	return database.Migrator().AutoMigrate(
+		&models.Player{},
+		&models.Question{},
+		&models.Game{},
+	)
+}
+
 func SetUpDatabase() (*gorm.DB, error) {
 	if envError := LoadEnv("../.env"); envError != nil {
 		return nil, envError
@@ -44,6 +59,12 @@ func SetUpDatabase() (*gorm.DB, error) {
 
 	if connectionError != nil {
 		return nil, connectionError
+	}
+
+	migrationError := migrateDatabase(database)
+
+	if migrationError != nil {
+		return nil, migrationError
 	}
 
 	return database, nil
