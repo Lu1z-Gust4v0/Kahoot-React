@@ -69,3 +69,9 @@ func SetUpDatabase() (*gorm.DB, error) {
 
 	return database, nil
 }
+
+func CloseConnection(connection *gorm.DB) error {
+  db, _ := connection.DB()
+  
+  return db.Close()
+}

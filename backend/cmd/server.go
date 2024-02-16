@@ -1,7 +1,23 @@
 package main
 
-import "fmt"
+import (
+  "github.com/gofiber/fiber/v2"
+  "kahoot-api/configs"
+)
 
 func main() {
-  fmt.Println("hello world")
+  app := fiber.New()
+  
+  database, setupError := configs.SetUpDatabase()
+  defer configs.CloseConnection(database)
+  
+  if setupError != nil {
+    panic(setupError.Error())
+  }
+
+  app.Get("/", func(context *fiber.Ctx) error {
+    return context.SendString("Hello World")
+  })
+
+  app.Listen(":3000")
 }
