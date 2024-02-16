@@ -37,8 +37,6 @@ type Game struct {
 	Title      string     `json:"title"`
 	Code       string     `json:"code"`
 	MaxPlayers uint8      `json:"max_players"`
-	Players    []Player   `json:"players"`
-	Questions  []Question `json:"questions"`
 	Status     uint8      `json:"status"`
 }
 
