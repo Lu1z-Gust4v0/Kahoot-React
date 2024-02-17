@@ -29,7 +29,7 @@ type Player struct {
 	Id     string `json:"id" gorm:"primaryKey"`
 	GameId string `json:"game_id"`
 	Name   string `json:"name"`
-	Points uint16 `json:"points"`
+	Score uint16 `json:"score"`
 }
 
 type Game struct {

@@ -22,7 +22,7 @@ type (
 		Status string
 	}
 
-	Interface interface {
+	GameInterface interface {
 		Create(ICreateGame) (*models.Game, error)
 		GetById(id string) (*models.Game, error)
 		Update(IUpdateGame) (*models.Game, error)
