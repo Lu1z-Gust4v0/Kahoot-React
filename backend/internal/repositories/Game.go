@@ -19,7 +19,7 @@ type (
 
 	IUpdateGame struct {
 		Id     string
-		Status string
+		Status models.GameStatus
 	}
 
 	GameInterface interface {
