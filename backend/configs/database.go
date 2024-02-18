@@ -42,7 +42,7 @@ func migrateDatabase(database *gorm.DB) error {
 }
 
 func SetUpDatabase() (*gorm.DB, error) {
-	if envError := LoadEnv("../.env"); envError != nil {
+	if envError := LoadEnv(".env"); envError != nil {
 		return nil, envError
 	}
 
