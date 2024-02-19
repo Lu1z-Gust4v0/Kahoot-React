@@ -1,3 +1,5 @@
+import { IoClose } from "react-icons/io5";
+
 type DialogProps = {
   close: () => void;
 };
@@ -14,8 +16,13 @@ const Dialog = ({ close }: DialogProps) => {
         close();
       }}
     >
-      <div className="flex flex-col h-fit min-w-80 w-1/4 bg-white py-4 px-8 gap-4 rounded-md z-20">
-        <h3 className="text-4xl text-blue-500 font-bold mb-4">Quiz Code</h3>
+      <div className="flex flex-col h-fit min-w-80 w-1/4 bg-white py-4 px-4 gap-4 rounded-md z-20">
+        <div className="flex mb-4 justify-between">
+          <h3 className="text-4xl text-blue-500 font-bold">Quiz Code</h3>
+          <button className="group self-start" onClick={() => close()}>
+            <IoClose className="w-4 h-4 transition-colors duration-200 group-hover:text-blue-500 group-focus:text-blue-500" />
+          </button>
+        </div>
         <input
           id="title"
           className="py-6 rounded-md px-4 shadow-md"
