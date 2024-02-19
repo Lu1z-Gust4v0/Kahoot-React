@@ -30,7 +30,7 @@ func (handler *BaseController) CreateGame(context *fiber.Ctx) error {
 		})
 	}
 
-	newGame, serviceError := handler.Service.CreateNewGame(repositories.ICreateGame{
+	newGame, questions, serviceError := handler.Service.CreateNewGame(repositories.ICreateGame{
 		Title:      body.Title,
 		Code:       body.Code,
 		MaxPlayers: body.MaxPlayers,
@@ -46,5 +46,6 @@ func (handler *BaseController) CreateGame(context *fiber.Ctx) error {
 	return context.Status(fiber.StatusOK).JSON(fiber.Map{
 		"message": "game created successfully",
 		"game":    newGame,
+    "questions": questions,
 	})
 }
