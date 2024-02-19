@@ -68,6 +68,13 @@ const QuizEditor = () => {
       ],
     }));
   };
+  
+  const removeQuestion = (id: string) => {
+    setQuiz((previous) => ({
+      ...previous,
+      questions: quiz.questions.filter((question) => question.id !== id),
+    }));
+  }
 
   const editQuiz = (quiz: Quiz) => setQuiz(quiz);
 
@@ -77,6 +84,7 @@ const QuizEditor = () => {
         questions={quiz.questions}
         selectQuestion={selectQuestion}
         addNewQuestion={addNewQuestion}
+        removeQuestion={removeQuestion}
       />
       <QuestionEditor
         selectedQuestion={selectedQuestion}
