@@ -24,6 +24,8 @@ type (
 
 	GameServiceInterface interface {
 		CreateNewGame(gameData repositories.ICreateGame, questions []QuestionData) (*models.Game, []models.Question, error)
+		GetGameById(id string) (*models.Game, error)
+		GetGameQuestions(id string) ([]models.Question, error)
 		UpdateGameStatus(gameId string, status models.GameStatus) (*models.Game, error)
 		AddNewPlayer(gameId string, name string) (*models.Player, error)
 		IncreasePlayerScore(playerId string, score uint16) (*models.Player, error)
@@ -98,4 +100,24 @@ func (service *GameService) IncreasePlayerScore(playerId string, score uint16) (
 	}
 
 	return player, nil
+}
+
+func (service *GameService) GetGameById(id string) (*models.Game, error) {
+	game, getError := service.GameRepo.GetById(id)
+
+	if getError != nil {
+		return nil, getError
+	}
+
+	return game, nil
+}
+
+func (service *GameService) GetGameQuestions(id string) ([]models.Question, error) {
+  questions, getError := service.QuestionRepo.GetGameQuestions(id)
+
+	if getError != nil {
+		return nil, getError
+	}
+
+  return questions, nil
 }

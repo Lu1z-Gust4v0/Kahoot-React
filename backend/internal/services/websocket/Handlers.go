@@ -27,11 +27,13 @@ func (gameHub *GameHub) HandleConnection(request *Register) {
 	}
 
 	gameHub.Clients[request.Connection] = &Client{Player: player, Closed: false}
+  go gameHub.BroadCastGameState()
 }
 
 func (gameHub *GameHub) HandleDisconnect(connection *websocket.Conn) {
 	gameHub.Clients[connection].Closed = true
 	log.Printf("Player %s left the game\n", gameHub.Clients[connection].Player.Id)
+  go gameHub.BroadCastGameState()
 }
 
 func (gameHub *GameHub) HandleAnswer(request *Answer) {
@@ -53,9 +55,11 @@ func (gameHub *GameHub) HandleGameEvent(event GameEvent) {
     log.Println("Game started successfully")
 		gameHub.Game.Status = models.Started
 		gameHub.GameEventChannel <- NEXT_QUESTION
+    go gameHub.BroadCastGameState()
 
 	case NEXT_QUESTION:
 		go gameHub.BroadCastQuestion()
+    go gameHub.BroadCastGameState()
 
 	case SHOW_SCORES:
 		go gameHub.BroadCastScores()
@@ -63,6 +67,7 @@ func (gameHub *GameHub) HandleGameEvent(event GameEvent) {
 	case FINISH_GAME:
     log.Println("Game finished successfully")
 		gameHub.Game.Status = models.Finished
+    go gameHub.BroadCastGameState()
 
 	default:
 		log.Println("Unknown game event")
