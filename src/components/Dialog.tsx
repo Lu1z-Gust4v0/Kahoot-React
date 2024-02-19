@@ -10,7 +10,7 @@ const Dialog = ({ close }: DialogProps) => {
       className="absolute flex justify-center inset-0 bg-black/50 py-32 z-10"
       onClick={(e) => {
         e.stopPropagation();
-        console.log(e.target, e.currentTarget);
+
         if (e.target !== e.currentTarget) return;
 
         close();
