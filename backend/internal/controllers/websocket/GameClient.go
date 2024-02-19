@@ -54,12 +54,12 @@ func GameClientWebsocket() func(*fiber.Ctx) error {
 				return
 			}
 
-			HandleIncommingMessage(gameHub, connection, incommingMessage, data)
+			HandleGameClientMessages(gameHub, connection, incommingMessage, data)
 		}
 	})
 }
 
-func HandleIncommingMessage(gameHub *ws.GameHub, connection *websocket.Conn, message map[string]interface{}, data []byte) {
+func HandleGameClientMessages(gameHub *ws.GameHub, connection *websocket.Conn, message map[string]interface{}, data []byte) {
 	switch messageType := message["type"].(dtos.MessageType); messageType {
 	case dtos.REGISTER:
 		var register dtos.RegisterRequest

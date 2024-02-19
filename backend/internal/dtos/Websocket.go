@@ -9,6 +9,7 @@ const (
 	QUESTION
 	REGISTER
 	ANSWER
+	START_GAME
 	GAME_STATE
 	ERROR
 )
@@ -22,6 +23,7 @@ type (
 		QuestionCount   uint              `json:"question_count"`
 		MaxPlayers      uint8             `json:"max_players"`
 		ActivePlayers   uint8             `json:"active_players"`
+		Players         []models.Player   `json:"players"`
 		Status          models.GameStatus `json:"status"`
 	}
 
@@ -56,5 +58,9 @@ type (
 	AnswerRequest struct {
 		Type   MessageType `json:"type"`
 		Answer string      `json:"answer"`
+	}
+
+	StartGameRequest struct {
+		Type MessageType `json:"type"`
 	}
 )

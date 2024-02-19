@@ -114,6 +114,7 @@ func (gameHub *GameHub) BroadCastGameState() {
 		QuestionCount:   uint(len(gameHub.Questions)),
 		MaxPlayers:      gameHub.Game.MaxPlayers,
 		ActivePlayers:   gameHub.GetActivePlayers(),
+		Players:         gameHub.GetPlayers(),
 	})
 
 	if broadcastError != nil {
