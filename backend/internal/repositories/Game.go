@@ -42,7 +42,7 @@ func (r *GameRepository) Create(data ICreateGame) (*models.Game, error) {
 		Title:      data.Title,
 		Code:       data.Code,
 		MaxPlayers: data.MaxPlayers,
-		Status:     uint8(models.Waiting),
+		Status:     models.Waiting,
 	}
 
 	result := r.GetDB().Create(&game)

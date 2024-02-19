@@ -29,7 +29,7 @@ type Player struct {
 	Id     string `json:"id" gorm:"primaryKey"`
 	GameId string `json:"game_id"`
 	Name   string `json:"name"`
-	Score uint16 `json:"score"`
+	Score  uint16 `json:"score"`
 }
 
 type Game struct {
@@ -37,7 +37,7 @@ type Game struct {
 	Title      string     `json:"title"`
 	Code       string     `json:"code"`
 	MaxPlayers uint8      `json:"max_players"`
-	Status     uint8      `json:"status"`
+	Status     GameStatus `json:"status"`
 }
 
 func (player *Player) BeforeCreate(tx *gorm.DB) error {

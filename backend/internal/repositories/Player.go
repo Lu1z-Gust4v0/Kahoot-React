@@ -18,6 +18,7 @@ type (
 
 	PlayerInterface interface {
 		Create(ICreatePlayer) (*models.Player, error)
+		GetById(id string) (*models.Player, error)
 		UpdatePlayerScore(Id string, score uint16) (*models.Player, error)
 	}
 )
@@ -38,6 +39,18 @@ func (r *PlayerRepository) Create(data ICreatePlayer) (*models.Player, error) {
 	}
 
 	result := r.GetDB().Create(&player)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return &player, nil
+}
+
+func (r *PlayerRepository) GetById(id string) (*models.Player, error) {
+	var player = models.Player{}
+
+	result := r.GetDB().First(&player, id)
 
 	if result.Error != nil {
 		return nil, result.Error
