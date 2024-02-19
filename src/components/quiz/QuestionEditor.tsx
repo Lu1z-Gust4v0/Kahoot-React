@@ -11,12 +11,11 @@ type QuestionOptionProps = {
   id: string;
   name: string;
   value: string;
-  correct: string[];
+  correct: string;
   handleChange: (
     e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>,
   ) => void;
   addCorrectOption: (option: string) => void;
-  removeCorrectOption: (option: string) => void;
   className?: string;
 };
 
@@ -27,18 +26,12 @@ const QuestionOption = ({
   correct,
   handleChange,
   addCorrectOption,
-  removeCorrectOption,
   className,
 }: QuestionOptionProps) => {
-  const isChecked =
-    correct.filter((item) => item === id).length === 1 ? true : false;
+  const isChecked = correct === id
 
   const toggleCheckbox = () => {
-    if (isChecked) {
-      removeCorrectOption(id);
-    } else {
-      addCorrectOption(id);
-    }
+    addCorrectOption(id)
   };
 
   return (
@@ -60,7 +53,7 @@ const QuestionOption = ({
           type="checkbox"
           name={id}
           id={`checkbox-${id}`}
-          onClick={() => toggleCheckbox()}
+          onChange={() => toggleCheckbox()}
           checked={isChecked}
         />
         <span className="checkmark"></span>
@@ -85,17 +78,10 @@ const QuestionEditor = ({
     }));
   };
 
-  const addCorrectOption = (option: string) => {
+  const selectCorrectOption = (option: string) => {
     setSelectedQuestion((previous) => ({
       ...previous,
-      correct: [...previous.correct, option],
-    }));
-  };
-
-  const removeCorrectOption = (option: string) => {
-    setSelectedQuestion((previous) => ({
-      ...previous,
-      correct: previous.correct.filter((item) => item !== option),
+      correct: option,
     }));
   };
 
@@ -124,8 +110,7 @@ const QuestionEditor = ({
           value={selectedQuestion.option_one}
           correct={selectedQuestion.correct}
           handleChange={handleChange}
-          addCorrectOption={addCorrectOption}
-          removeCorrectOption={removeCorrectOption}
+          addCorrectOption={selectCorrectOption}
         />
         <QuestionOption
           id="option_two"
@@ -134,8 +119,7 @@ const QuestionEditor = ({
           value={selectedQuestion.option_two}
           correct={selectedQuestion.correct}
           handleChange={handleChange}
-          addCorrectOption={addCorrectOption}
-          removeCorrectOption={removeCorrectOption}
+          addCorrectOption={selectCorrectOption}
         />
         <QuestionOption
           id="option_three"
@@ -144,8 +128,7 @@ const QuestionEditor = ({
           value={selectedQuestion.option_three}
           correct={selectedQuestion.correct}
           handleChange={handleChange}
-          addCorrectOption={addCorrectOption}
-          removeCorrectOption={removeCorrectOption}
+          addCorrectOption={selectCorrectOption}
         />
         <QuestionOption
           id="option_four"
@@ -154,8 +137,7 @@ const QuestionEditor = ({
           value={selectedQuestion.option_four}
           correct={selectedQuestion.correct}
           handleChange={handleChange}
-          addCorrectOption={addCorrectOption}
-          removeCorrectOption={removeCorrectOption}
+          addCorrectOption={selectCorrectOption}
         />
       </div>
       <button

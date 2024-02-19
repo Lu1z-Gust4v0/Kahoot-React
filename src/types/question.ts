@@ -6,5 +6,5 @@ export type Question = {
   option_two: string;
   option_three: string;
   option_four: string;
-  correct: string[];
+  correct: string;
 };
