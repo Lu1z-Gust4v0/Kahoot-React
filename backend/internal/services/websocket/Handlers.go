@@ -63,6 +63,7 @@ func (gameHub *GameHub) HandleGameEvent(event GameEvent) {
 
 	case SHOW_SCORES:
 		go gameHub.BroadCastScores()
+    go gameHub.BroadCastGameState()
 
 	case FINISH_GAME:
     log.Println("Game finished successfully")
