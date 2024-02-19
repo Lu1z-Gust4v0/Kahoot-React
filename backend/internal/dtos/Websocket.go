@@ -10,6 +10,7 @@ const (
 	REGISTER
 	ANSWER
 	GAME_STATE
+	ERROR
 )
 
 type (
@@ -40,6 +41,11 @@ type (
 		Type    MessageType     `json:"type"`
 		GameId  string          `json:"game_id"`
 		Players []models.Player `json:"players"`
+	}
+
+	ErrorMessage struct {
+		Type  MessageType `json:"type"`
+		Error string      `json:"error"`
 	}
 
 	RegisterRequest struct {
