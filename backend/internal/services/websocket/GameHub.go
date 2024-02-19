@@ -19,6 +19,11 @@ const (
 const CORRECT_ANSWER_POINTS = 1000
 
 type (
+	GameMaster struct {
+		Connection *websocket.Conn
+		Closed     bool
+	}
+
 	Client struct {
 		Player *models.Player
 		Closed bool
@@ -42,12 +47,13 @@ type (
 		RegisterChannel   chan *Register
 		UnregisterChannel chan *websocket.Conn
 		AnswerChannel     chan *Answer
+		GameMaster        *GameMaster
 		Clients           map[*websocket.Conn]*Client
 		GameEventChannel  chan GameEvent
 	}
 )
 
-func NewGameHub(game *models.Game, questions []models.Question, service *services.GameService) *GameHub {
+func NewGameHub(gameMaster *websocket.Conn, game *models.Game, questions []models.Question, service *services.GameService) *GameHub {
 	return &GameHub{
 		Game:              game,
 		Questions:         questions,
@@ -56,6 +62,7 @@ func NewGameHub(game *models.Game, questions []models.Question, service *service
 		RegisterChannel:   make(chan *Register),
 		UnregisterChannel: make(chan *websocket.Conn),
 		AnswerChannel:     make(chan *Answer),
+		GameMaster:        &GameMaster{Connection: gameMaster, Closed: false},
 		Clients:           make(map[*websocket.Conn]*Client),
 		GameEventChannel:  make(chan GameEvent),
 	}

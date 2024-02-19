@@ -9,9 +9,21 @@ const (
 	QUESTION
 	REGISTER
 	ANSWER
+	GAME_STATE
 )
 
 type (
+	GameStateMessage struct {
+		Type            MessageType       `json:"type"`
+		Title           string            `json:"title"`
+		Code            string            `json:"code"`
+		CurrentQuestion uint              `json:"current_question"`
+		QuestionCount   uint              `json:"question_count"`
+		MaxPlayers      uint8             `json:"max_players"`
+		ActivePlayers   uint8             `json:"active_players"`
+		Status          models.GameStatus `json:"status"`
+	}
+
 	QuestionMessage struct {
 		Type        MessageType `json:"type"`
 		GameId      string      `json:"game_id"`

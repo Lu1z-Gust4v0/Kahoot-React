@@ -23,8 +23,8 @@ type (
 	}
 
 	GameServiceInterface interface {
-		CreateNewGame(data repositories.ICreateGame) (*models.Game, error)
-		UpdateGameStatus(gameId string, status models.GameStatus) (*models.Game, []models.Question, error)
+		CreateNewGame(gameData repositories.ICreateGame, questions []QuestionData) (*models.Game, []models.Question, error)
+		UpdateGameStatus(gameId string, status models.GameStatus) (*models.Game, error)
 		AddNewPlayer(gameId string, name string) (*models.Player, error)
 		IncreasePlayerScore(playerId string, score uint16) (*models.Player, error)
 	}
