@@ -9,13 +9,16 @@ import (
 
 	"github.com/gofiber/fiber/v2"
   "github.com/gofiber/contrib/websocket"
+  "github.com/gofiber/fiber/v2/middleware/cors"
 
 	"log"
 )
 
 func main() {
 	app := fiber.New()
- 
+  
+  app.Use(cors.New())
+
   // Protect websocket routes
   app.Use("/api/ws", func(context *fiber.Ctx) error {
     if websocket.IsWebSocketUpgrade(context) {
@@ -47,5 +50,5 @@ func main() {
   app.Get("/api/ws/client/:code", ws.GameClientWebsocket())
   app.Get("/api/ws/master/:gameId", ws.GameMasterWebsocket(service))
 
-	app.Listen(":3000")
+	app.Listen(":8000")
 }
