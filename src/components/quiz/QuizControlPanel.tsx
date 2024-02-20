@@ -6,6 +6,7 @@ import quizService from "@/services/quizService";
 import { quizToCreateQuizRequest } from "@/utils/validate";
 import { isError } from "@/types/error";
 import Toast from "../Toast";
+import { useRouter } from "next/navigation";
 
 type QuizControlPanelProps = {
   quiz: Quiz;
@@ -18,6 +19,8 @@ const QuizControlPanel = ({ quiz, editQuiz }: QuizControlPanelProps) => {
     type: "error",
     message: "",
   });
+  
+  const router = useRouter()
 
   const toggle = () => {
     setToast((previous) => ({ ...previous, open: !toast.open }));
@@ -44,8 +47,7 @@ const QuizControlPanel = ({ quiz, editQuiz }: QuizControlPanelProps) => {
 
       const response = await quizService.CreateNewQuiz(request);
 
-      newToast("success", "question created successfully")
-      console.log(response)
+      router.push(`/quiz/${response.game.id}/start`)
     } catch (error) {
       if (isError(error)) {
         console.log(error.message);
