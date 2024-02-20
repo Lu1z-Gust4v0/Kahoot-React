@@ -60,7 +60,7 @@ func GameClientWebsocket() func(*fiber.Ctx) error {
 }
 
 func HandleGameClientMessages(gameHub *ws.GameHub, connection *websocket.Conn, message map[string]interface{}, data []byte) {
-	switch messageType := message["type"].(dtos.MessageType); messageType {
+	switch messageType := dtos.MessageType(message["type"].(float64)); messageType {
 	case dtos.REGISTER:
 		var register dtos.RegisterRequest
 

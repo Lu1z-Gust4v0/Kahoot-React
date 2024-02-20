@@ -23,10 +23,10 @@ func GameMasterWebsocket(service *services.GameService) func(*fiber.Ctx) error {
 		if error != nil {
 			connection.WriteJSON(dtos.ErrorMessage{
 				Type:  dtos.ERROR,
-				Error: error.Error(),
+				Error: "Game not found",
 			})
-      connection.Close()
-      return
+			connection.Close()
+			return
 		}
 
 		gameHub, error := GetGameHub(game, connection, service)
@@ -36,8 +36,8 @@ func GameMasterWebsocket(service *services.GameService) func(*fiber.Ctx) error {
 				Type:  dtos.ERROR,
 				Error: error.Error(),
 			})
-      connection.Close()
-      return
+			connection.Close()
+			return
 		}
 
 		go gameHub.BroadCastGameState()
@@ -61,7 +61,7 @@ func GameMasterWebsocket(service *services.GameService) func(*fiber.Ctx) error {
 			}
 
 			parseError := json.Unmarshal(data, &incommingMessage)
-
+      
 			if parseError != nil {
 				connection.WriteJSON(dtos.ErrorMessage{
 					Type:  dtos.ERROR,
@@ -90,12 +90,13 @@ func GetGameHub(game *models.Game, connection *websocket.Conn, service *services
 
 	gameHub := ws.NewGameHub(connection, game, questions, service)
 	ActiveGames[game.Code] = gameHub
+  go ws.RunGameHub(gameHub)
 
 	return gameHub, nil
 }
 
 func HandleGameMasterMessages(gameHub *ws.GameHub, connection *websocket.Conn, message map[string]interface{}, data []byte) {
-	switch messageType := message["type"].(dtos.MessageType); messageType {
+	switch messageType := dtos.MessageType(message["type"].(float64)); messageType {
 	case dtos.START_GAME:
 		var startGame dtos.StartGameRequest
 
@@ -108,7 +109,7 @@ func HandleGameMasterMessages(gameHub *ws.GameHub, connection *websocket.Conn, m
 			})
 			return
 		}
-
+    
 		gameHub.GameEventChannel <- ws.START_GAME
 
 	default:
