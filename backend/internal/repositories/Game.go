@@ -57,7 +57,7 @@ func (r *GameRepository) Create(data ICreateGame) (*models.Game, error) {
 func (r *GameRepository) GetById(id string) (*models.Game, error) {
 	var game = models.Game{}
 
-	result := r.GetDB().First(&game, id)
+	result := r.GetDB().First(&game, "id = ?", id)
 
 	if result.Error != nil {
 		return nil, result.Error

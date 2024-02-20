@@ -50,7 +50,7 @@ func (r *PlayerRepository) Create(data ICreatePlayer) (*models.Player, error) {
 func (r *PlayerRepository) GetById(id string) (*models.Player, error) {
 	var player = models.Player{}
 
-	result := r.GetDB().First(&player, id)
+	result := r.GetDB().First(&player, "id = ?", id)
 
 	if result.Error != nil {
 		return nil, result.Error
