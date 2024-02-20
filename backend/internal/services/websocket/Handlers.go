@@ -31,8 +31,16 @@ func (gameHub *GameHub) HandleConnection(request *Register) {
 }
 
 func (gameHub *GameHub) HandleDisconnect(connection *websocket.Conn) {
+  _, valid := gameHub.Clients[connection]
+
+  // If the connection was invalid, it means the connection was not from a registed player
+  if !valid {
+    return
+  }
+
 	gameHub.Clients[connection].Closed = true
 	log.Printf("Player %s left the game\n", gameHub.Clients[connection].Player.Id)
+  delete(gameHub.Clients, connection)
   go gameHub.BroadCastGameState()
 }
 

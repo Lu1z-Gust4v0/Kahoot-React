@@ -15,10 +15,6 @@ var ActiveGames = make(map[string]*ws.GameHub)
 
 func GameClientWebsocket() func(*fiber.Ctx) error {
 	return websocket.New(func(connection *websocket.Conn) {
-		go func() {
-			connection.Close()
-		}()
-
 		gameCode := connection.Params("code")
 
 		gameHub, validCode := ActiveGames[gameCode]
@@ -30,6 +26,11 @@ func GameClientWebsocket() func(*fiber.Ctx) error {
 			})
 			connection.Close()
 		}
+
+		defer func() {
+			connection.Close()
+      gameHub.UnregisterChannel <- connection
+		}()
 
 		for {
 			var incommingMessage map[string]interface{}

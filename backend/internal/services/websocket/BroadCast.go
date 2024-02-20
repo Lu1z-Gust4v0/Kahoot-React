@@ -80,23 +80,13 @@ func (gameHub *GameHub) BroadCastScores() {
 	time.Sleep(10 * time.Second)
 }
 
-func (gameHub *GameHub) GetActivePlayers() uint8 {
-	var players uint8 = 0
-
-	for _, client := range gameHub.Clients {
-		if !client.Closed {
-			players++
-		}
-	}
-
-	return players
-}
-
 func (gameHub *GameHub) BroadCastGameState() {
 	if gameHub.GameMaster.Closed {
 		return
 	}
   
+  players := gameHub.GetPlayers()
+
 	broadcastError := gameHub.GameMaster.Connection.WriteJSON(dtos.GameStateMessage{
 		Type:            dtos.GAME_STATE,
 		Title:           gameHub.Game.Title,
@@ -104,8 +94,8 @@ func (gameHub *GameHub) BroadCastGameState() {
 		CurrentQuestion: gameHub.CurrentQuestion,
 		QuestionCount:   uint(len(gameHub.Questions)),
 		MaxPlayers:      gameHub.Game.MaxPlayers,
-		ActivePlayers:   gameHub.GetActivePlayers(),
-		Players:         gameHub.GetPlayers(),
+		ActivePlayers:   uint8(len(players)),
+		Players:         players,
 		Status:          gameHub.Game.Status,
 	})
 
