@@ -1,24 +1,12 @@
-import { QuizStatus } from "@/types/quiz";
+"use client";
+import { QuizStatus, WebsocketMessage } from "@/types/quiz";
+import useWebsocket from "@/hooks/useWebsocket";
+import Toast from "@/components/Toast";
+import { useState } from "react";
+import { WebsocketGameStateMessage } from "@/types/websocket";
 
 type StartGamePageProps = {
   params: { gameId: string };
-};
-
-const MOCK_GAME_DATA = {
-  title: "test game 1",
-  code: "TEST_GAME",
-  current_question: 0,
-  question_count: 10,
-  max_players: 10,
-  active_players: 5,
-  players: [
-    { id: "player1", name: "player 1", score: 0 },
-    { id: "player2", name: "player 2", score: 0 },
-    { id: "player3", name: "player 3", score: 0 },
-    { id: "player4", name: "player 4", score: 0 },
-    { id: "player5", name: "player 5", score: 0 },
-  ],
-  status: QuizStatus.WAITING,
 };
 
 function QuizStatusBagde({ status }: { status: QuizStatus }) {
@@ -59,54 +47,104 @@ function PlayerCard({
 }
 
 export default function StartGamePage({ params }: StartGamePageProps) {
-  console.log(params.gameId);
+  const [gameState, setGameState] = useState<WebsocketGameStateMessage | null>(
+    null,
+  );
+  const [toast, setToast] = useState({
+    open: false,
+    type: "error",
+    message: "",
+  });
+  const { sendMessage } = useWebsocket(
+    `/api/ws/master/${params.gameId}`,
+    (event) => {
+      const message = JSON.parse(event.data) as { type: WebsocketMessage };
+
+      switch (message.type) {
+        case WebsocketMessage.ERROR:
+          const error = (message as { type: WebsocketMessage; error: string })
+            .error;
+          setToast({
+            open: true,
+            type: "error",
+            message: error,
+          });
+          break;
+
+        case WebsocketMessage.GAME_STATE:
+          const state = message as WebsocketGameStateMessage;
+
+          setGameState(state);
+          break;
+
+        default:
+          console.log("Unknown websocket message");
+      }
+    },
+  );
+
+  const toggle = () => {
+    setToast((previous) => ({ ...previous, open: !toast.open }));
+  };
   return (
     <main className="grid grid-cols-12 h-screen w-full bg-gradient py-12">
-      <div className="flex flex-col h-fit col-start-3 col-span-8 bg-white p-8 gap-8 rounded-md shadow-md">
-        <h2 className="text-5xl text-gradient font-bold mb-4">
-          {MOCK_GAME_DATA.title.toUpperCase()}
-        </h2>
-        <div className="grid grid-cols-2 w-2/3 gap-8">
-          <h3 className="text-3xl text-gray-700 font-bold">
-            CODE: <span className="text-blue-500">{MOCK_GAME_DATA.code}</span>
-          </h3>
-          <div className="flex items-center gap-4">
-            <h3 className="text-3xl text-gray-700 font-bold">STATUS:</h3>
-            <QuizStatusBagde status={MOCK_GAME_DATA.status} />
+      {toast.open && (
+        <Toast
+          className="justify-self-center"
+          close={toggle}
+          type={toast.type}
+          message={toast.message}
+        />
+      )}
+      {gameState && (
+        <div className="flex flex-col h-fit col-start-3 col-span-8 bg-white p-8 gap-8 rounded-md shadow-md">
+          <h2 className="text-5xl text-gradient font-bold mb-4">
+            {gameState.title.toUpperCase()}
+          </h2>
+          <div className="grid grid-cols-2 w-2/3 gap-8">
+            <h3 className="text-3xl text-gray-700 font-bold">
+              CODE: <span className="text-blue-500">{gameState.code}</span>
+            </h3>
+            <div className="flex items-center gap-4">
+              <h3 className="text-3xl text-gray-700 font-bold">STATUS:</h3>
+              <QuizStatusBagde status={gameState.status} />
+            </div>
+            <h3 className="text-3xl text-gray-700 font-bold">
+              PLAYERS:{" "}
+              <span className="text-blue-500">
+                {gameState.active_players} / {gameState.max_players}
+              </span>
+            </h3>
+            <h3 className="text-3xl text-gray-700 font-bold">
+              QUESTIONS:{" "}
+              <span className="text-blue-500">
+                {gameState.current_question} / {gameState.question_count}
+              </span>
+            </h3>
           </div>
-          <h3 className="text-3xl text-gray-700 font-bold">
-            PLAYERS:{" "}
-            <span className="text-blue-500">
-              {MOCK_GAME_DATA.active_players} / {MOCK_GAME_DATA.max_players}
-            </span>
-          </h3>
-          <h3 className="text-3xl text-gray-700 font-bold">
-            QUESTIONS:{" "}
-            <span className="text-blue-500">
-              {MOCK_GAME_DATA.current_question + 1} /{" "}
-              {MOCK_GAME_DATA.question_count}
-            </span>
-          </h3>
+          <div className="grid grid-cols-2 w-full gap-8 max-h-96 overflow-y-auto p-8 bg-gray-100 rounded-md">
+            <h3 className="col-span-2 text-3xl text-gray-700 font-bold">
+              PLAYERS' SCORES
+            </h3>
+            {gameState.players.map((player) => {
+              return <PlayerCard player={player} key={player.id} />;
+            })}
+          </div>
+          <button
+            className={`
+              self-start py-4 px-16 bg-purple-500 
+              text-white text-2xl font-bold rounded-md 
+              hover:bg-purple-700 disabled:bg-gray-400
+              `}
+            disabled={gameState.status !== QuizStatus.WAITING}
+            onClick={() =>
+              sendMessage(JSON.stringify({ type: WebsocketMessage.START_GAME }))
+            }
+          >
+            Start Quiz
+          </button>
         </div>
-        <div className="grid grid-cols-2 w-full gap-8 max-h-96 overflow-y-auto p-8 bg-gray-100 rounded-md">
-          <h3 className="col-span-2 text-3xl text-gray-700 font-bold">
-            PLAYERS' SCORES
-          </h3>
-          {MOCK_GAME_DATA.players.map((player) => {
-            return <PlayerCard player={player} key={player.id} />;
-          })}
-        </div>
-        <button 
-          className={`
-            self-start py-4 px-16 bg-purple-500 
-            text-white text-2xl font-bold rounded-md 
-            hover:bg-purple-700 disabled:bg-gray-400
-          `}
-          disabled={MOCK_GAME_DATA.status !== QuizStatus.WAITING}
-        >
-          Start Quiz
-        </button>
-      </div>
+      )}
     </main>
   );
 }
