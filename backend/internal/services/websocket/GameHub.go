@@ -50,6 +50,7 @@ type (
 		GameMaster        *GameMaster
 		Clients           map[*websocket.Conn]*Client
 		GameEventChannel  chan GameEvent
+    Done             chan bool
 	}
 )
 
@@ -64,7 +65,8 @@ func NewGameHub(gameMaster *websocket.Conn, game *models.Game, questions []model
 		AnswerChannel:     make(chan *Answer),
 		GameMaster:        &GameMaster{Connection: gameMaster, Closed: false},
 		Clients:           make(map[*websocket.Conn]*Client),
-		GameEventChannel:  make(chan GameEvent),
+		GameEventChannel:  make(chan GameEvent, 2),
+		Done:             make(chan bool),
 	}
 }
 
@@ -82,6 +84,9 @@ func RunGameHub(gameHub *GameHub) {
 
 		case gameEvent := <-gameHub.GameEventChannel:
 			gameHub.HandleGameEvent(gameEvent)
+
+    case <-gameHub.Done:
+      return
 		}
 	}
 }

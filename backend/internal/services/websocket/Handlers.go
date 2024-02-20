@@ -54,21 +54,32 @@ func (gameHub *GameHub) HandleGameEvent(event GameEvent) {
 	case START_GAME:
     log.Println("Game started successfully")
 		gameHub.Game.Status = models.Started
+    gameHub.BroadCastGameState()
 		gameHub.GameEventChannel <- NEXT_QUESTION
-    go gameHub.BroadCastGameState()
 
 	case NEXT_QUESTION:
-		go gameHub.BroadCastQuestion()
-    go gameHub.BroadCastGameState()
+    log.Println("Next question")
+		gameHub.BroadCastQuestion()
+    gameHub.BroadCastGameState()
+    gameHub.CurrentQuestion++;
+    gameHub.GameEventChannel <- SHOW_SCORES
 
 	case SHOW_SCORES:
-		go gameHub.BroadCastScores()
-    go gameHub.BroadCastGameState()
+    log.Println("Show players score")
+		gameHub.BroadCastScores()
+
+    if gameHub.CurrentQuestion == uint(len(gameHub.Questions)) {
+      gameHub.GameEventChannel <- FINISH_GAME
+    }
+
+    gameHub.BroadCastGameState()
+    gameHub.GameEventChannel <- NEXT_QUESTION
 
 	case FINISH_GAME:
     log.Println("Game finished successfully")
 		gameHub.Game.Status = models.Finished
-    go gameHub.BroadCastGameState()
+    gameHub.BroadCastGameState()
+    gameHub.Done <- true
 
 	default:
 		log.Println("Unknown game event")

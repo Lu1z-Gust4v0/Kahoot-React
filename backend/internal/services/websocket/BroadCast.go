@@ -38,15 +38,12 @@ func (gameHub *GameHub) BroadCastQuestion() {
 			}
 		}(connection, client)
 	}
-	gameHub.CurrentQuestion++
-	// sleep for 10 seconds before showing the scores
+	// sleep for 10 seconds before goint to the next question
 	time.Sleep(10 * time.Second)
-	gameHub.GameEventChannel <- SHOW_SCORES
-
 }
 
 func (gameHub *GameHub) GetPlayers() []models.Player {
-	var players []models.Player
+	var players = []models.Player{}
 
 	for _, client := range gameHub.Clients {
 		players = append(players, *client.Player)
@@ -57,11 +54,6 @@ func (gameHub *GameHub) GetPlayers() []models.Player {
 
 func (gameHub *GameHub) BroadCastScores() {
 	players := gameHub.GetPlayers()
-	// We are at the last question
-	if gameHub.CurrentQuestion == uint(len(gameHub.Questions)) {
-		gameHub.GameEventChannel <- FINISH_GAME
-		return
-	}
 
 	for connection, client := range gameHub.Clients {
 		go func(connection *websocket.Conn, client *Client) {
@@ -84,9 +76,8 @@ func (gameHub *GameHub) BroadCastScores() {
 		}(connection, client)
 	}
 
-	// sleep for 10 seconds before going to the next question
+	// sleep for 10 seconds before goint to the next question
 	time.Sleep(10 * time.Second)
-	gameHub.GameEventChannel <- NEXT_QUESTION
 }
 
 func (gameHub *GameHub) GetActivePlayers() uint8 {
@@ -105,7 +96,7 @@ func (gameHub *GameHub) BroadCastGameState() {
 	if gameHub.GameMaster.Closed {
 		return
 	}
-
+  
 	broadcastError := gameHub.GameMaster.Connection.WriteJSON(dtos.GameStateMessage{
 		Type:            dtos.GAME_STATE,
 		Title:           gameHub.Game.Title,
@@ -115,6 +106,7 @@ func (gameHub *GameHub) BroadCastGameState() {
 		MaxPlayers:      gameHub.Game.MaxPlayers,
 		ActivePlayers:   gameHub.GetActivePlayers(),
 		Players:         gameHub.GetPlayers(),
+		Status:          gameHub.Game.Status,
 	})
 
 	if broadcastError != nil {
