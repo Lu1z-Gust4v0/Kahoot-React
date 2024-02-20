@@ -27,7 +27,7 @@ export default function Home() {
   };
 
   return (
-    <div className="grid grid-cols-12 h-screen w-full bg-gray-200">
+    <div className="grid grid-cols-12 h-screen w-full bg-gradient">
       <nav className="flex items-center bg-white h-20 col-span-full px-8 shadow-md">
         <h1 className="text-3xl font-bold text-gradient">Kahoot React</h1>
       </nav>
