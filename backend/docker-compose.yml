@@ -1,0 +1,17 @@
+version: "3.1"
+
+services:
+  db:
+    image: postgres
+    ports:
+      - "7777:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-admin}
+      POSTGRES_DB: ${POSTGRES_DB:-kahoot}
+    volumes:
+      - kahoot:/var/lib/postgresql
+
+volumes:
+  kahoot:
+    external: false

@@ -1,0 +1,34 @@
+{
+  "title": "test 1",
+  "code": "hellowolrd",
+  "max_players": 8,
+  "questions": [
+    {
+      "title": "test 1 question 1",
+      "body": "test question",
+      "option_one": "1",
+      "option_two": "2",
+      "option_three": "3",
+      "option_four": "4",
+      "correct": "one"
+    },
+    {
+      "title": "test 1 question 2",
+      "body": "test question",
+      "option_one": "1",
+      "option_two": "2",
+      "option_three": "3",
+      "option_four": "4",
+      "correct": "two"
+    },
+    {
+      "title": "test 1 question 3",
+      "body": "test question",
+      "option_one": "1",
+      "option_two": "2",
+      "option_three": "3",
+      "option_four": "4",
+      "correct": "three"
+    }
+  ]
+}

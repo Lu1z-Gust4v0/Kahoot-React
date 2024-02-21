@@ -1,0 +1,121 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .bg-gradient {
+    @apply bg-gradient-to-r from-purple-500 to-blue-700;
+  }
+
+  .text-gradient {
+    @apply bg-gradient-to-r from-purple-500 to-blue-500 bg-clip-text text-transparent;
+  }
+
+  .checkbox-container {
+    @apply group absolute flex items-center right-4 cursor-pointer;
+  }
+
+  .checkbox {
+    @apply opacity-0 h-0 w-0;
+  }
+
+  .checkmark {
+    @apply absolute right-0 flex h-6 w-6 bg-white rounded-sm group-hover:bg-gray-100;
+  }
+
+  .checkbox:checked ~ .checkmark {
+    @apply bg-white;
+  }
+
+  .checkmark::after {
+    @apply border border-blue-500;
+    content: "";
+    position: absolute;
+    display: none;
+    left: 10px;
+    top: 6px;
+    width: 6px;
+    height: 12px;
+    border-width: 0 3px 3px 0;
+    transform: rotate(45deg);
+  }
+
+  .checkbox:checked ~ .checkmark::after {
+    @apply block;
+  }
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  input[type="range"]::-webkit-slider-runnable-track {
+    @apply bg-gray-200;
+    height: 0.5rem;
+    border-radius: 0.5rem;
+    background: linear-gradient(to right, rgb(168 85 247) var(--percentage) ,rgb(229 231 235) var(--percentage));
+  }
+
+  input[type="range"]::-moz-range-track {
+    @apply bg-gray-200;
+    height: 0.5rem;
+    border-radius: 0.5rem;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    @apply bg-purple-500 text-purple-500;
+    -webkit-appearance: none;
+    /* Override default look */
+    appearance: none;
+    /* thumb-height / 2 - track-height / 2  */
+    /* Centers thumb on the track */
+    margin-top: calc((0.5rem / 2) - 1rem / 2);
+    height: 1rem;
+    width: 1rem;
+    border-radius: 50%;
+  }
+
+  input[type="range"]::-moz-range-thumb {
+    @apply bg-purple-500 text-purple-500;
+    border: none;
+    /*Removes extra border that FF applies*/
+    border-radius: 0;
+    /*Removes default border-radius that FF applies*/
+    height: 1rem;
+    width: 1rem;
+  }
+
+  input[type="range"]:focus {
+    outline: none;
+  }
+
+  /* Hover, active & focus Thumb: Webkit */
+  input[type="range"]::-webkit-slider-thumb:hover {
+    @apply text-purple-500/10;
+    box-shadow: 0 0 0 0.5rem;
+  }
+  input[type="range"]:active::-webkit-slider-thumb {
+    @apply text-purple-500/20;
+    box-shadow: 0 0 0 0.6rem;
+  }
+  input[type="range"]:focus::-webkit-slider-thumb {
+    @apply text-purple-500/20;
+    box-shadow: 0 0 0 0.6rem;
+  }
+
+  /* Hover, active & focus Thumb: Firfox */
+  input[type="range"]::-moz-range-thumb:hover {
+    @apply text-purple-500/10;
+    box-shadow: 0 0 0 0.5rem;
+  }
+  input[type="range"]:active::-moz-range-thumb {
+    @apply text-purple-500/20;
+    box-shadow: 0 0 0 0.6rem;
+  }
+  input[type="range"]:focus::-moz-range-thumb {
+    @apply text-purple-500/20;
+    box-shadow: 0 0 0 0.6rem;
+  }
+}
