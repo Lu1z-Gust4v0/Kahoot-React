@@ -5,7 +5,7 @@ export type WebsocketErrorMessage = {
   message: string;
 };
 
-type Player = {
+export type Player = {
   id: string;
   game_id: string;
   name: string;
