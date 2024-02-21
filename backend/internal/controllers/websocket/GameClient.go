@@ -8,6 +8,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 
 	"kahoot-api/internal/dtos"
+	"kahoot-api/internal/models"
 	ws "kahoot-api/internal/services/websocket"
 )
 
@@ -15,6 +16,8 @@ var ActiveGames = make(map[string]*ws.GameHub)
 
 func GameClientWebsocket() func(*fiber.Ctx) error {
 	return websocket.New(func(connection *websocket.Conn) {
+		var player models.Player
+
 		gameCode := connection.Params("code")
 
 		gameHub, validCode := ActiveGames[gameCode]
@@ -29,7 +32,9 @@ func GameClientWebsocket() func(*fiber.Ctx) error {
 
 		defer func() {
 			connection.Close()
-      gameHub.UnregisterChannel <- connection
+      if player.Id != "" {
+        gameHub.UnregisterChannel <- player.Id
+      }
 		}()
 
 		for {
@@ -55,12 +60,12 @@ func GameClientWebsocket() func(*fiber.Ctx) error {
 				return
 			}
 
-			HandleGameClientMessages(gameHub, connection, incommingMessage, data)
+			HandleGameClientMessages(gameHub, connection, &player, incommingMessage, data)
 		}
 	})
 }
 
-func HandleGameClientMessages(gameHub *ws.GameHub, connection *websocket.Conn, message map[string]interface{}, data []byte) {
+func HandleGameClientMessages(gameHub *ws.GameHub, connection *websocket.Conn, player *models.Player, message map[string]interface{}, data []byte) {
 	switch messageType := dtos.MessageType(message["type"].(float64)); messageType {
 	case dtos.REGISTER:
 		var register dtos.RegisterRequest
@@ -75,7 +80,17 @@ func HandleGameClientMessages(gameHub *ws.GameHub, connection *websocket.Conn, m
 			return
 		}
 
-		gameHub.RegisterChannel <- &ws.Register{Name: register.Name, Connection: connection}
+    newPlayer, connectionError := gameHub.HandleConnection(&ws.Register{Name: register.Name, Connection: connection})
+
+    if connectionError != nil {
+			connection.WriteJSON(dtos.ErrorMessage{
+				Type:  dtos.ERROR,
+				Error: connectionError.Error(),
+			})
+			return
+    }
+    *player = *newPlayer
+
 	case dtos.ANSWER:
 		var answer dtos.AnswerRequest
 
@@ -88,8 +103,16 @@ func HandleGameClientMessages(gameHub *ws.GameHub, connection *websocket.Conn, m
 			})
 			return
 		}
+  
+    if player == nil {
+			connection.WriteJSON(dtos.ErrorMessage{
+				Type:  dtos.ERROR,
+				Error: "Player not registered",
+			})
+			return
+    }
 
-		gameHub.AnswerChannel <- &ws.Answer{Answer: answer.Answer}
+		gameHub.HandleAnswer(&ws.Answer{PlayerId: player.Id, Answer: answer.Answer})
 
 	default:
 		connection.WriteJSON(dtos.ErrorMessage{

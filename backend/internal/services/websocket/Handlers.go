@@ -1,59 +1,60 @@
 package websocket
 
 import (
+	"errors"
 	"kahoot-api/internal/models"
 	"log"
-
-	"github.com/gofiber/contrib/websocket"
 )
 
-func (gameHub *GameHub) HandleConnection(request *Register) {
+func (gameHub *GameHub) HandleConnection(request *Register) (*models.Player, error) {
 	if gameHub.Game.Status != models.Waiting {
 		log.Println("Game cannot receive new players")
-		request.Connection.Close()
+    return nil, errors.New("Game cannot receive new players")
 	}
 
 	if gameHub.Game.MaxPlayers == uint8(len(gameHub.Clients)) {
 		log.Println("Game is already full")
-		request.Connection.Close()
+    return nil, errors.New("Game is already full")
 	}
 
 	player, createError := gameHub.GameService.AddNewPlayer(gameHub.Game.Id, request.Name)
 
 	if createError != nil {
 		log.Println("Failed to create player")
-		log.Println("Closing connection...")
-		request.Connection.Close()
+    return nil, errors.New("Failed to create player")
 	}
 
-	gameHub.Clients[request.Connection] = &Client{Player: player, Closed: false}
+	gameHub.Clients[player.Id] = &Client{Player: player, Connection: request.Connection}
   go gameHub.BroadCastGameState()
+
+  return player, nil
 }
 
-func (gameHub *GameHub) HandleDisconnect(connection *websocket.Conn) {
-  _, valid := gameHub.Clients[connection]
+func (gameHub *GameHub) HandleDisconnect(playerId string) {
+  _, valid := gameHub.Clients[playerId]
 
   // If the connection was invalid, it means the connection was not from a registed player
   if !valid {
     return
   }
 
-	gameHub.Clients[connection].Closed = true
-	log.Printf("Player %s left the game\n", gameHub.Clients[connection].Player.Id)
-  delete(gameHub.Clients, connection)
+	log.Printf("Player %s left the game\n", playerId)
+  delete(gameHub.Clients, playerId)
   go gameHub.BroadCastGameState()
 }
 
 func (gameHub *GameHub) HandleAnswer(request *Answer) {
-	client := gameHub.Clients[request.Connection]
+  _, closed := gameHub.Clients[request.PlayerId]
 
-	if client.Closed {
-		log.Println("This client is already closed")
+	if !closed {
+		log.Println("Invalid connection")
 		return
 	}
+  
+  var correct = gameHub.Questions[gameHub.CurrentQuestion].Correct
 
-	if gameHub.Questions[gameHub.CurrentQuestion].Correct == request.Answer {
-		gameHub.Clients[request.Connection].Player.Score += CORRECT_ANSWER_POINTS
+	if request.Answer == correct {
+		gameHub.Clients[request.PlayerId].Player.Score += CORRECT_ANSWER_POINTS
 	}
 }
 
@@ -69,7 +70,6 @@ func (gameHub *GameHub) HandleGameEvent(event GameEvent) {
     log.Println("Next question")
 		gameHub.BroadCastQuestion()
     gameHub.BroadCastGameState()
-    gameHub.CurrentQuestion++;
     gameHub.GameEventChannel <- SHOW_SCORES
 
 	case SHOW_SCORES:

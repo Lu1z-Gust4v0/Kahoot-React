@@ -7,13 +7,13 @@ import (
 
 type (
 	QuestionData struct {
-		Title       string
-		Body        string
-		OptionOne   string
-		OptionTwo   string
-		OptionThree string
-		OptionFour  string
-		Correct     string
+		Title       string `json:"title"`
+		Body        string `json:"body"`
+		OptionOne   string `json:"option_one"`
+		OptionTwo   string `json:"option_two"`
+		OptionThree string `json:"option_three"`
+		OptionFour  string `json:"option_four"`
+		Correct     string `json:"correct"`
 	}
 
 	GameService struct {
@@ -113,11 +113,11 @@ func (service *GameService) GetGameById(id string) (*models.Game, error) {
 }
 
 func (service *GameService) GetGameQuestions(id string) ([]models.Question, error) {
-  questions, getError := service.QuestionRepo.GetGameQuestions(id)
+	questions, getError := service.QuestionRepo.GetGameQuestions(id)
 
 	if getError != nil {
 		return nil, getError
 	}
 
-  return questions, nil
+	return questions, nil
 }

@@ -5,20 +5,14 @@ import (
 	"kahoot-api/internal/models"
 	"log"
 	"time"
-
-	"github.com/gofiber/contrib/websocket"
 )
 
 func (gameHub *GameHub) BroadCastQuestion() {
-	for connection, client := range gameHub.Clients {
-		go func(connection *websocket.Conn, client *Client) {
-			if client.Closed {
-				return
-			}
-
+	for playerId, client := range gameHub.Clients {
+		go func(playerId string, client *Client) {
 			currentQuestion := gameHub.Questions[gameHub.CurrentQuestion]
 
-			broadcastError := connection.WriteJSON(dtos.QuestionMessage{
+			broadcastError := client.Connection.WriteJSON(dtos.QuestionMessage{
 				Type:        dtos.QUESTION,
 				GameId:      gameHub.Game.Id,
 				Title:       currentQuestion.Title,
@@ -31,12 +25,12 @@ func (gameHub *GameHub) BroadCastQuestion() {
 			})
 
 			if broadcastError != nil {
-				log.Printf("Failed to broadcast message to %s\n", client.Player.Id)
+				log.Printf("Failed to broadcast message to %s\n", playerId)
 
-				connection.Close()
-				gameHub.UnregisterChannel <- connection
+				client.Connection.Close()
+				gameHub.UnregisterChannel <- playerId
 			}
-		}(connection, client)
+		}(playerId, client)
 	}
 	// sleep for 10 seconds before goint to the next question
 	time.Sleep(10 * time.Second)
@@ -55,37 +49,34 @@ func (gameHub *GameHub) GetPlayers() []models.Player {
 func (gameHub *GameHub) BroadCastScores() {
 	players := gameHub.GetPlayers()
 
-	for connection, client := range gameHub.Clients {
-		go func(connection *websocket.Conn, client *Client) {
-			if client.Closed {
-				return
-			}
-
-			broadcastError := connection.WriteJSON(dtos.ScoresMessage{
+	for playerId, client := range gameHub.Clients {
+		go func(playerId string, client *Client) {
+			broadcastError := client.Connection.WriteJSON(dtos.ScoresMessage{
 				Type:    dtos.SCORES,
 				GameId:  gameHub.Game.Id,
 				Players: players,
 			})
 
 			if broadcastError != nil {
-				log.Printf("Failed to broadcast message to %s\n", client.Player.Id)
+				log.Printf("Failed to broadcast message to %s\n", playerId)
 
-				connection.Close()
-				gameHub.UnregisterChannel <- connection
+				client.Connection.Close()
+				gameHub.UnregisterChannel <- playerId
 			}
-		}(connection, client)
+		}(playerId, client)
 	}
 
 	// sleep for 10 seconds before goint to the next question
 	time.Sleep(10 * time.Second)
+	gameHub.CurrentQuestion++
 }
 
 func (gameHub *GameHub) BroadCastGameState() {
 	if gameHub.GameMaster.Closed {
 		return
 	}
-  
-  players := gameHub.GetPlayers()
+
+	players := gameHub.GetPlayers()
 
 	broadcastError := gameHub.GameMaster.Connection.WriteJSON(dtos.GameStateMessage{
 		Type:            dtos.GAME_STATE,

@@ -26,7 +26,7 @@ type (
 
 	Client struct {
 		Player *models.Player
-		Closed bool
+		Connection *websocket.Conn
 	}
 
 	Register struct {
@@ -36,7 +36,7 @@ type (
 
 	Answer struct {
 		Answer     string
-		Connection *websocket.Conn
+		PlayerId   string
 	}
 
 	GameHub struct {
@@ -44,11 +44,9 @@ type (
 		Questions         []models.Question
 		CurrentQuestion   uint
 		GameService       *services.GameService
-		RegisterChannel   chan *Register
-		UnregisterChannel chan *websocket.Conn
-		AnswerChannel     chan *Answer
+		UnregisterChannel chan string
 		GameMaster        *GameMaster
-		Clients           map[*websocket.Conn]*Client
+		Clients           map[string]*Client
 		GameEventChannel  chan GameEvent
     Done             chan bool
 	}
@@ -60,11 +58,9 @@ func NewGameHub(gameMaster *websocket.Conn, game *models.Game, questions []model
 		Questions:         questions,
 		CurrentQuestion:   0,
 		GameService:       service,
-		RegisterChannel:   make(chan *Register),
-		UnregisterChannel: make(chan *websocket.Conn),
-		AnswerChannel:     make(chan *Answer),
+		UnregisterChannel: make(chan string),
 		GameMaster:        &GameMaster{Connection: gameMaster, Closed: false},
-		Clients:           make(map[*websocket.Conn]*Client),
+		Clients:           make(map[string]*Client),
 		GameEventChannel:  make(chan GameEvent, 2),
 		Done:             make(chan bool),
 	}
@@ -73,14 +69,8 @@ func NewGameHub(gameMaster *websocket.Conn, game *models.Game, questions []model
 func RunGameHub(gameHub *GameHub) {
 	for {
 		select {
-		case request := <-gameHub.RegisterChannel:
-			gameHub.HandleConnection(request)
-
 		case unregister := <-gameHub.UnregisterChannel:
 			gameHub.HandleDisconnect(unregister)
-
-		case answer := <-gameHub.AnswerChannel:
-			gameHub.HandleAnswer(answer)
 
 		case gameEvent := <-gameHub.GameEventChannel:
 			gameHub.HandleGameEvent(gameEvent)
