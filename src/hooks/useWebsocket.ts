@@ -1,7 +1,8 @@
 "use client";
+import { BASE_URL } from "@/providers/api";
 import { useEffect, useState } from "react";
 
-const HOST = "localhost:8000";
+const HOST = BASE_URL.split("//")[1];
 
 const useWebsocket = (
   path: string,

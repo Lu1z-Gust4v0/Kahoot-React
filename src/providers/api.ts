@@ -1,7 +1,7 @@
 import axios, { AxiosRequestConfig } from "axios";
 import { errorInterceptor } from "./interceptors/errorInterceptor";
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:8000";
+export const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:8000";
 
 class ApiProvider {
   private instance;
