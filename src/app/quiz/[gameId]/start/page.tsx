@@ -4,6 +4,7 @@ import useWebsocket from "@/hooks/useWebsocket";
 import Toast from "@/components/Toast";
 import { useState } from "react";
 import { WebsocketGameStateMessage } from "@/types/websocket";
+import PlayerCard from "@/components/quiz/PlayerCard";
 
 type StartGamePageProps = {
   params: { gameId: string };
@@ -26,24 +27,6 @@ function QuizStatusBagde({ status }: { status: QuizStatus }) {
     default:
       return <span className={`${badgeStyle} bg-gray-400`}>UNKNOWN</span>;
   }
-}
-
-function PlayerCard({
-  player,
-}: {
-  player: { id: string; name: string; score: number };
-}) {
-  return (
-    <div className="flex flex-col bg-white shadow-md rounded-md px-8 py-4 gap-4">
-      <h4 className="text-gradient text-2xl font-bold uppercase">
-        {player.name}
-      </h4>
-      <div className="flex items-center gap-4">
-        <p className="text-xl text-gray-700 font-bold">SCORE:</p>
-        <span className="text-xl text-blue-500 font-bold">{player.score}</span>
-      </div>
-    </div>
-  );
 }
 
 export default function StartGamePage({ params }: StartGamePageProps) {
@@ -78,7 +61,7 @@ export default function StartGamePage({ params }: StartGamePageProps) {
           break;
 
         default:
-          console.log("Unknown websocket message");
+          console.log("Unknown websocket message: ", message);
       }
     },
   );
@@ -122,7 +105,7 @@ export default function StartGamePage({ params }: StartGamePageProps) {
               </span>
             </h3>
           </div>
-          <div className="grid grid-cols-2 w-full gap-8 max-h-96 overflow-y-auto p-8 bg-gray-100 rounded-md">
+          <div className="grid grid-cols-2 w-full gap-4 max-h-[30rem] overflow-y-auto p-8 bg-gray-100 rounded-md">
             <h3 className="col-span-2 text-3xl text-gray-700 font-bold">
               PLAYERS' SCORES
             </h3>
