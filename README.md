@@ -20,7 +20,7 @@ This a kahoot clone made in NextJs with a Go backend. Realtime updates are handl
 - Run Postgresql docker container
 ```
 cd backend/
-docker compose up db
+docker compose up
 ```
 
 - Run go server 
