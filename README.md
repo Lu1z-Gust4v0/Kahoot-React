@@ -17,16 +17,10 @@ This a kahoot clone made in NextJs with a Go backend. Realtime updates are handl
 
 - Create a .env where .env.example exists
 
-- Run Postgresql docker container
+- Run Postgresql and go docker containers
 ```
 cd backend/
 docker compose up
-```
-
-- Run go server 
-```
-cd backend/
-go run cmd/server.go
 ```
 
 - Run frontend
